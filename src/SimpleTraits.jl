@@ -153,7 +153,7 @@ macro traitimpl(tr)
             end
         else
             return quote
-                $fnhead = Not{$trname{$(paras...)}}
+                $fnhead = $curmod.Not{$trname{$(paras...)}}
                 nothing
             end
         end
@@ -167,8 +167,8 @@ macro traitimpl(tr)
             fn = Expr(:call, GlobalRef(SimpleTraits, :!), fn)
         end
         return esc(quote
-                   function SimpleTraits.trait(::Type{$Tr{$(P1...)}}) where {$(P1...)}
-                       return $fn($(P2...)) ? $Tr{$(P1...)} : Not{$Tr{$(P1...)}}
+                   function $curmod.trait(::Type{$Tr{$(P1...)}}) where {$(P1...)}
+                       return $fn($(P2...)) ? $Tr{$(P1...)} : $curmod.Not{$Tr{$(P1...)}}
                    end
                    nothing
                    end)
@@ -510,10 +510,10 @@ macro check_fast_traitdispatch(Tr, Arg=:Int, verbose=false)
     out = gensym()
     esc(quote
         $test_fn_null(x) = 1
-        $nl_null = SimpleTraits.llvm_lines($test_fn_null, ($Arg,))
+        $nl_null = $curmod.llvm_lines($test_fn_null, ($Arg,))
         @traitfn $test_fn(x::::$Tr) = 1
         @traitfn $test_fn(x::::(!$Tr)) = 2
-        $nl = SimpleTraits.llvm_lines($test_fn, ($Arg,))
+        $nl = $curmod.llvm_lines($test_fn, ($Arg,))
         $out = $nl == $nl_null
         if $verbose && !$out
             println("Number of llvm code lines $($nl) but should be $($nl_null).")
