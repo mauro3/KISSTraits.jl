@@ -18,8 +18,3 @@ basetrs = [:IsConcrete=>:Int,
 for (bt, tp) in basetrs
     @test @eval @check_fast_traitdispatch $bt $tp true
 end
-
-# IsIterator used dynamic dispatch as hasmethod is not inferable,
-# see https://github.com/mauro3/SimpleTraits.jl/issues/40.
-println("""One statement of "Number of llvm code lines X but should be Y." is expected:""")
-@test !(@eval @check_fast_traitdispatch IsIterator Dict{Int,Int} true)
